@@ -1,0 +1,661 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+  <link rel="manifest" href="/manifest.json"/>
+ <link rel="shortcut icon" href="/favicon.ico">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BMI計算機ゲーム - Body Mass Index計算機</title>
+    <meta name="description" content="BMI（Body Mass Index）計算機ゲームで楽しく健康管理！体重と身長を入力するだけで、理想的なBMI値を計算し、健康状態をチェックできます。無料でご利用いただけます。">
+    <meta name="keywords" content="BMI計算機, Body Mass Index, ボディマス指数, 健康管理, 体重計算, 肥満度, ダイエット, フィットネス">
+    <meta name="robots" content="index, follow">
+    <meta property="og:title" content="BMI計算機ゲーム - 楽しく健康管理">
+    <meta property="og:description" content="BMI（Body Mass Index）を楽しく計算できるゲーム型ツール。健康的な体重管理をサポートします。">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://kaloodinaz.github.io/bmi-calculator/">
+  
+    
+    <!-- Favicon SVG -->
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cdefs%3E%3ClinearGradient id='grad1' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' style='stop-color:%2366d9ef;stop-opacity:1' /%3E%3Cstop offset='100%25' style='stop-color:%23667eea;stop-opacity:1' /%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='64' height='64' rx='12' fill='url(%23grad1)'/%3E%3Cg fill='white'%3E%3Ccircle cx='32' cy='20' r='8' opacity='0.9'/%3E%3Crect x='20' y='30' width='24' height='20' rx='4' opacity='0.9'/%3E%3Ctext x='32' y='42' text-anchor='middle' font-family='Arial, sans-serif' font-size='10' font-weight='bold'%3EBMI%3C/text%3E%3C/g%3E%3C/svg%3E">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #2d3748;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* Header */
+        header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 2px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 0;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #667eea;
+        }
+
+        .logo svg {
+            width: 32px;
+            height: 32px;
+            margin-right: 10px;
+        }
+
+        .nav-links {
+            display: flex;
+            list-style: none;
+            gap: 2rem;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: #4a5568;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .nav-links a:hover {
+            color: #667eea;
+            transform: translateY(-2px);
+        }
+
+        .nav-links a::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            transition: width 0.3s ease;
+        }
+
+        .nav-links a:hover::after {
+            width: 100%;
+        }
+
+        /* Mobile menu */
+        .mobile-menu {
+            display: none;
+            cursor: pointer;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .mobile-menu span {
+            width: 25px;
+            height: 3px;
+            background: #667eea;
+            transition: all 0.3s ease;
+        }
+
+        /* Ad Block for PC only */
+        .ad-block {
+            width: 728px;
+            height: 90px;
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            margin: 20px auto;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+            font-size: 18px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            animation: pulse 3s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.02); }
+        }
+
+        /* Hero Section */
+        .hero {
+            padding: 4rem 0;
+            text-align: center;
+            color: white;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000"><circle cx="200" cy="200" r="100" fill="rgba(255,255,255,0.1)"/><circle cx="800" cy="300" r="150" fill="rgba(255,255,255,0.05)"/><circle cx="400" cy="600" r="80" fill="rgba(255,255,255,0.08)"/></svg>') no-repeat;
+            animation: float 20s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-20px) rotate(180deg); }
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 2;
+        }
+
+        .hero h1 {
+            font-size: 3.5rem;
+            font-weight: 800;
+            margin-bottom: 1rem;
+            background: linear-gradient(135deg, #fff, #e2e8f0);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: slideInUp 1s ease-out;
+        }
+
+        .hero p {
+            font-size: 1.25rem;
+            margin-bottom: 2rem;
+            opacity: 0.95;
+            animation: slideInUp 1s ease-out 0.2s both;
+        }
+
+        @keyframes slideInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .cta-button {
+            display: inline-block;
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+            padding: 1rem 2.5rem;
+            text-decoration: none;
+            border-radius: 50px;
+            font-weight: 600;
+            font-size: 1.1rem;
+            transition: all 0.3s ease;
+            box-shadow: 0 8px 25px rgba(79, 172, 254, 0.3);
+            animation: slideInUp 1s ease-out 0.4s both;
+        }
+
+        .cta-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 35px rgba(79, 172, 254, 0.4);
+        }
+
+        /* BMI Calculator Section */
+        .bmi-calculator {
+            padding: 4rem 0;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            margin: 2rem 0;
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+        }
+
+        .calculator-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 3rem;
+            align-items: start;
+        }
+
+        .calculator-form {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 2.5rem;
+            border-radius: 20px;
+            color: white;
+            box-shadow: 0 8px 30px rgba(102, 126, 234, 0.3);
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 1rem;
+            border: none;
+            border-radius: 12px;
+            font-size: 1rem;
+            background: rgba(255, 255, 255, 0.95);
+            transition: all 0.3s ease;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            background: white;
+            box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+        }
+
+        .calculate-btn {
+            width: 100%;
+            padding: 1rem;
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(79, 172, 254, 0.3);
+        }
+
+        .calculate-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(79, 172, 254, 0.4);
+        }
+
+        .bmi-result {
+            background: linear-gradient(135deg, #ffeaa7, #fab1a0);
+            padding: 2.5rem;
+            border-radius: 20px;
+            text-align: center;
+            box-shadow: 0 8px 30px rgba(255, 234, 167, 0.3);
+        }
+
+        .result-display {
+            font-size: 3rem;
+            font-weight: 800;
+            color: #2d3748;
+            margin-bottom: 1rem;
+            display: none;
+        }
+
+        .result-category {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            display: none;
+        }
+
+        .result-description {
+            color: #4a5568;
+            line-height: 1.6;
+            display: none;
+        }
+
+        /* Features Section */
+        .features {
+            padding: 4rem 0;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            margin: 2rem 0;
+            border-radius: 20px;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-top: 3rem;
+        }
+
+        .feature-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 2rem;
+            border-radius: 16px;
+            color: white;
+            text-align: center;
+            transition: all 0.3s ease;
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.2);
+        }
+
+        .feature-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 35px rgba(102, 126, 234, 0.3);
+        }
+
+        .feature-icon {
+            width: 60px;
+            height: 60px;
+            margin: 0 auto 1rem;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+        }
+
+        /* SEO Content Section */
+        .seo-content {
+            padding: 4rem 0;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            margin: 2rem 0;
+            border-radius: 20px;
+        }
+
+        .seo-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        .seo-card {
+            background: linear-gradient(135deg, #ffeaa7, #fab1a0);
+            padding: 2rem;
+            border-radius: 16px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Footer */
+        footer {
+            background: rgba(45, 55, 72, 0.95);
+            backdrop-filter: blur(10px);
+            color: white;
+            padding: 2rem 0;
+            text-align: center;
+            margin-top: 2rem;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .ad-block {
+                display: none;
+            }
+
+            .nav-links {
+                display: none;
+            }
+
+            .mobile-menu {
+                display: flex;
+            }
+
+            .hero h1 {
+                font-size: 2.5rem;
+            }
+
+            .hero p {
+                font-size: 1rem;
+            }
+
+            .calculator-container {
+                grid-template-columns: 1fr;
+                gap: 2rem;
+            }
+
+            .container {
+                padding: 0 15px;
+            }
+        }
+
+        @media (min-width: 769px) and (max-width: 1200px) {
+            .ad-block {
+                width: 100%;
+                max-width: 728px;
+            }
+        }
+
+        @media (max-width: 727px) {
+            .ad-block {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+<script>
+      if('serviceWorker' in navigator) {window.addEventListener('load', () => {navigator.serviceWorker.register('/sw.js')
+      .then(registration => {console.log('Service Worker registered successfully:', registration);})
+      .catch(error => {console.log('Error in Service Worker registration:', error);});});}
+      </script>
+    <header>
+        <nav class="container">
+            <div class="logo">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+                    <defs>
+                        <linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" style="stop-color:#66d9ef;stop-opacity:1" />
+                            <stop offset="100%" style="stop-color:#667eea;stop-opacity:1" />
+                        </linearGradient>
+                    </defs>
+                    <rect width="64" height="64" rx="12" fill="url(#grad1)"/>
+                    <g fill="white">
+                        <circle cx="32" cy="20" r="8" opacity="0.9"/>
+                        <rect x="20" y="30" width="24" height="20" rx="4" opacity="0.9"/>
+                        <text x="32" y="42" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" font-weight="bold">BMI</text>
+                    </g>
+                </svg>
+                BMI計算機
+            </div>
+            <ul class="nav-links">
+                <li><a href="#home">ホーム</a></li>
+                <li><a href="#calculator">計算機</a></li>
+                <li><a href="#features">機能</a></li>
+                <li><a href="#about">概要</a></li>
+            </ul>
+            <div class="mobile-menu">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Ad Block (PC Only) -->
+    <div class="ad-block">
+       <script type="text/javascript">
+	atOptions = {
+		'key' : 'd1d26e15f7c349fd8e403bb5ea491a31',
+		'format' : 'iframe',
+		'height' : 90,
+		'width' : 728,
+		'params' : {}
+	};
+</script>
+<script type="text/javascript" src="//www.highperformanceformat.com/d1d26e15f7c349fd8e403bb5ea491a31/invoke.js"></script>
+    </div>
+
+    <main>
+        <section id="home" class="hero">
+            <div class="container hero-content">
+                <h1>BMI計算機ゲーム</h1>
+                <p>楽しく簡単にBMI（Body Mass Index）を計算して、健康的な体重管理を始めましょう！</p>
+                <a href="#calculator" class="cta-button">今すぐ計算する</a>
+            </div>
+        </section>
+
+        <div class="container">
+            <section id="calculator" class="bmi-calculator">
+                <div class="calculator-container">
+                    <div class="calculator-form">
+                        <h2>BMI計算機</h2>
+                        <form id="bmi-form">
+                            <div class="form-group">
+                                <label for="height">身長 (cm)</label>
+                                <input type="number" id="height" placeholder="例: 170" step="0.1" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="weight">体重 (kg)</label>
+                                <input type="number" id="weight" placeholder="例: 65" step="0.1" required>
+                            </div>
+                            <button type="submit" class="calculate-btn">BMI計算</button>
+                        </form>
+                    </div>
+                    <div class="bmi-result">
+                        <h3>あなたのBMI結果</h3>
+                        <div class="result-display" id="bmi-value">--</div>
+                        <div class="result-category" id="bmi-category">ここに結果が表示されます</div>
+                        <div class="result-description" id="bmi-description">身長と体重を入力して、BMI値を計算してください。</div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="features" class="features">
+                <div class="container">
+                    <h2 style="text-align: center; margin-bottom: 1rem;">機能とメリット</h2>
+                    <div class="features-grid">
+                        <div class="feature-card">
+                            <div class="feature-icon">🎯</div>
+                            <h3>簡単操作</h3>
+                            <p>身長と体重を入力するだけで、瞬時にBMI値を計算。使いやすいインターフェースで誰でも簡単にご利用いただけます。</p>
+                        </div>
+                        <div class="feature-card">
+                            <div class="feature-icon">📊</div>
+                            <h3>詳細分析</h3>
+                            <p>BMI値だけでなく、肥満度カテゴリーと健康状態の詳しい説明を提供。あなたの健康管理をサポートします。</p>
+                        </div>
+                        <div class="feature-card">
+                            <div class="feature-icon">🎮</div>
+                            <h3>ゲーム要素</h3>
+                            <p>楽しいゲーム感覚でBMI計算が可能。健康管理を継続的に行うモチベーションを高めます。</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="about" class="seo-content">
+                <div class="container">
+                    <h2 style="text-align: center; margin-bottom: 2rem;">BMI（Body Mass Index）について</h2>
+                    <div class="seo-grid">
+                        <div class="seo-card">
+                            <h3>BMIとは？</h3>
+                            <p>BMI（Body Mass Index）は、身長と体重から算出される肥満度を表す指標です。世界保健機関（WHO）によって定められた国際的な基準で、健康状態を簡単にチェックできる重要な数値です。BMIは「体重（kg）÷ 身長（m）の2乗」で計算されます。</p>
+                        </div>
+                        <div class="seo-card">
+                            <h3>BMIの分類</h3>
+                            <p>日本肥満学会による分類では、BMI値18.5未満が「低体重（やせ）」、18.5以上25未満が「普通体重」、25以上が「肥満」とされています。理想的なBMI値は22とされており、最も病気にかかりにくい状態とされています。</p>
+                        </div>
+                        <div class="seo-card">
+                            <h3>健康管理の重要性</h3>
+                            <p>適正なBMI値を維持することは、生活習慣病の予防や健康寿命の延伸に重要です。定期的にBMIをチェックすることで、肥満や低体重による健康リスクを早期に発見し、適切な対策を取ることができます。</p>
+                        </div>
+                        <div class="seo-card">
+                            <h3>ダイエットとフィットネス</h3>
+                            <p>BMI値を参考にしながら、適切な食事管理と運動を行うことで、効果的なダイエットが可能です。急激な体重減少ではなく、健康的な範囲でのゆるやかな体重管理を心がけましょう。</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2025 BMI計算機ゲーム. All rights reserved. | 健康的な体重管理をサポートします</p>
+        </div>
+    </footer>
+
+    <script>
+        document.getElementById('bmi-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const height = parseFloat(document.getElementById('height').value);
+            const weight = parseFloat(document.getElementById('weight').value);
+            
+            if (height && weight) {
+                const heightInMeters = height / 100;
+                const bmi = weight / (heightInMeters * heightInMeters);
+                const bmiRounded = Math.round(bmi * 10) / 10;
+                
+                let category, description, color;
+                
+                if (bmi < 18.5) {
+                    category = '低体重（やせ）';
+                    description = 'BMI値が18.5未満です。栄養バランスの良い食事を心がけ、適度な運動で健康的に体重を増やしましょう。';
+                    color = '#3498db';
+                } else if (bmi < 25) {
+                    category = '普通体重';
+                    description = 'BMI値が正常範囲内です。このまま健康的な生活習慣を維持し、定期的にBMIをチェックしましょう。';
+                    color = '#2ecc71';
+                } else if (bmi < 30) {
+                    category = '肥満（1度）';
+                    description = 'BMI値が25以上です。バランスの良い食事と定期的な運動で、健康的な体重減少を目指しましょう。';
+                    color = '#f39c12';
+                } else {
+                    category = '肥満（2度以上）';
+                    description = 'BMI値が30以上です。医師に相談の上、適切な食事療法と運動療法を行うことをお勧めします。';
+                    color = '#e74c3c';
+                }
+                
+                document.getElementById('bmi-value').textContent = bmiRounded;
+                document.getElementById('bmi-category').textContent = category;
+                document.getElementById('bmi-description').textContent = description;
+                
+                document.getElementById('bmi-value').style.color = color;
+                document.getElementById('bmi-category').style.color = color;
+                
+                // Show results with animation
+                document.getElementById('bmi-value').style.display = 'block';
+                document.getElementById('bmi-category').style.display = 'block';
+                document.getElementById('bmi-description').style.display = 'block';
+                
+                // Add animation effect
+                document.getElementById('bmi-value').style.animation = 'slideInUp 0.5s ease-out';
+                document.getElementById('bmi-category').style.animation = 'slideInUp 0.5s ease-out 0.1s both';
+                document.getElementById('bmi-description').style.animation = 'slideInUp 0.5s ease-out 0.2s both';
+            }
+        });
+
+        // Smooth scrolling for navigation links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+
+        // Mobile menu toggle
+        document.querySelector('.mobile-menu').addEventListener('click', function() {
+            const navLinks = document.querySelector('.nav-links');
+            navLinks.style.display = navLinks.style.display === 'flex' ? 'none' : 'flex';
+        });
+    </script>
+  <script src="https://cdn.counter.dev/script.js" data-id="74211804-62e3-41a8-9f09-2f1eac9640fb" data-utcoffset="2"></script>
+
+</body>
+</html>
